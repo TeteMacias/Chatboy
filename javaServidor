@@ -1,0 +1,147 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package server;
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+
+/**
+ *
+ * @author Tania Macias
+ */
+public class MainServer {
+
+   /**
+     * Puerto 
+     */
+    private final static int PORT = 5000;
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        
+        try {
+            //Socket de servidor para esperar peticiones de la red
+            ServerSocket serverSocket = new ServerSocket(PORT);
+            System.out.println("Servidor> Servidor iniciado");    
+            System.out.println("Servidor> En espera de cliente...");    
+            //Socket de cliente
+            Socket clientSocket;
+            while(true){
+                //en espera de conexion, si existe la acepta
+                clientSocket = serverSocket.accept();
+                //Para leer lo que envie el cliente
+                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                //para imprimir datos de salida                
+                PrintStream output = new PrintStream(clientSocket.getOutputStream());
+                //se lee peticion del cliente
+                String request = input.readLine();
+                System.out.println("Cliente> petición [" + request +  "]");
+                //se procesa la peticion y se espera resultado
+                String strOutput = process(request);                
+                //Se imprime en consola "servidor"
+                System.out.println("Servidor> Resultado de petición");                    
+                System.out.println("Servidor> \"" + strOutput + "\"");
+                //se imprime en cliente
+                output.flush();//vacia contenido
+                output.println(strOutput);                
+                //cierra conexion
+                clientSocket.close();
+            }    
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
+        }
+    }
+    
+    /**
+     * procesa peticion del cliente y retorna resultado
+     * @param request peticion del cliente
+     * @return String
+     */
+    public static String process(String request){
+        String result="";        
+//saludo
+        String[] welcome = {
+            "Bienvenido cliente", 
+            };
+	ArrayList<String> welcomeList = new ArrayList<>();
+	Collections.addAll(welcomeList, welcome);  
+
+//hola
+        String[] hello = {
+            "Hola cliente!", 
+            };
+	ArrayList<String> helloList = new ArrayList<>();
+	Collections.addAll(helloList, hello);    
+
+//como estA
+        String[] howold = {
+            "Bien.! Gracias por preguntar, escribe las palabras claves para poder ayudar", 
+            };
+	ArrayList<String> howoldList = new ArrayList<>();
+	Collections.addAll(howoldList, howold);         
+
+
+
+//frases
+        String[] phrases = {
+            "Redes de Computadoras I | Ing. Willian Zamora.",
+            "Sistemas Distribuidos 1 Ing. William Delgado.",
+            "Administración de Base de Datos | Ing. Robert Moreira.",
+            "Investigación de Operaciones | Ing. Pedro Moya.",
+            "Programación Móvil | Ing. Edgardo Panchana.",
+            "Técnología a la Seguridad de la Información | Ing. Viviana Macías.",
+            "Contabilidad I | Ing. Luzmila López Reyes.",
+            "SSeminario de Realidad Socioeconómico de Manabí y Ecuador | Ing. María Zambrano Vera."};
+	ArrayList<String> phrasesList = new ArrayList<>();
+	Collections.addAll(phrasesList, phrases);
+        //libros
+        String[] books = {
+            "Facultad de Ciencias Informáticas | Ingeniería en Sistemas.", 
+            "Facultad de Ciencias Informáticas | Técnología a la Información.",
+        };  
+	ArrayList<String> booksList = new ArrayList<>();
+	Collections.addAll(booksList, books);        
+        
+        if(request!=null) switch(request){
+            case "servidor":
+                Collections.shuffle(welcomeList);
+                result = welcomeList.get(0);
+                break; 
+            case "hola servidor":
+                Collections.shuffle(helloList);
+                result = helloList.get(0);
+                break; 
+            case "como esta?":
+                Collections.shuffle(howoldList);
+                result = howoldList.get(0);
+                break;
+            case "materia y docente":
+                Collections.shuffle(phrasesList);
+                result = phrasesList.get(0);
+                break;
+            case "carreras":
+                Collections.shuffle(booksList);
+                result = booksList.get(0);
+                break;
+            case "exit":                
+                result = "Adios! Regrese pronto!";
+                break;
+            default:
+                result = "Su petición no se puede resolver :( Intentelo de nuevo por favor...";
+                break;
+        }
+        return result;
+    }
+}
